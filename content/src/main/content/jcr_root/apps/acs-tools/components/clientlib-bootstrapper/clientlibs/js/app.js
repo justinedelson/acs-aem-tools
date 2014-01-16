@@ -27,11 +27,15 @@ clientlibBoostrapper.controller('MainCtrl', function($scope, $http) {
     $scope.data = {};
     $scope.data.basePath = '';
     $scope.data.name = '';
+    $scope.data.overwriteExisting = false;
     $scope.data.dependencies = [];
     $scope.data.embeds = [];
     $scope.data.categories = [];
     $scope.data.includeJs = true;
     $scope.data.includeCss = true;
+    $scope.data.includeBootstrap = false;
+    $scope.data.bootstrapVersion = '';
+    $scope.data.bootstrapWrapperClass = '';
 
     $scope.running = false;
     $scope.error = false;
@@ -45,6 +49,8 @@ clientlibBoostrapper.controller('MainCtrl', function($scope, $http) {
 
         $scope.error = false;
         $scope.success = false;
+
+        $scope.running = true;
 
         $http.post($('body').data("post-url"), $scope.data).success(
             function(data) {

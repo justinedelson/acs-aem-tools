@@ -72,6 +72,8 @@
 
                     <label class="fieldlabel" for="name">Library Name:</label>
                     <input class="field" type="text" name="name" ng-model="data.name"><br/>
+                    
+                    <label><input type="checkbox" name="overwriteExisting" ng-model="data.overwriteExisting" /><span>Overwrite Existing?<span></span></label>
 
                     <label class="fieldlabel" for="categories">Categories:</label>
                     <ul name="categories">
@@ -117,7 +119,22 @@
                     <label><input type="checkbox" name="includeJs" ng-model="data.includeJs" /><span>Includes JS?<span></span></label>
                     
                     <label><input type="checkbox" name="includeCss" ng-model="data.includeCss" /><span>Includes CSS?</span></label>
-
+                </section>
+                
+                <section id="bootstrap-config" class="fieldset framework">
+                    <label><input type="checkbox" name="includeBootstrap" ng-model="data.includeBootstrap" /><span>Include Bootstrap?</span></label>
+                    <label class="fieldlabel" for="bootstrapVersion">Bootstrap Version:</label>
+                    <select name="bootstrapVersion" data-init="dropdown" ng-model="data.bootstrapVersion">
+                            <option value="">Select</option>
+                        <c:forEach var="ver" items="${cb:getBootstrapVersions()}">
+                            <option value="${ver.value}">${ver.key}</option>
+                        </c:forEach>
+                    </select>
+                    <label class="fieldlabel" for="wrapperClass">Wrapper class:</label>
+                    <input type="text" class="field" name="wrapperClass" ng-model="data.bootstrapWrapperClass"/>
+                </section>
+                
+                <section class="fieldset">
                     <button class="primary" ng-click="createLibrary()">Go</button>
                 </section>
             </form>
