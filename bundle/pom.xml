@@ -52,7 +52,7 @@
                         
                         <Include-Resource>
                             {maven-resources},
-                            META-INF/clientlib-bootstrapper.tld.tld=target/classes/META-INF/clientlib-bootstrapper.tld
+                            META-INF/clientlib-bootstrapper.tld=target/classes/META-INF/clientlib-bootstrapper.tld
                         </Include-Resource>
                     </instructions>
                 </configuration>
