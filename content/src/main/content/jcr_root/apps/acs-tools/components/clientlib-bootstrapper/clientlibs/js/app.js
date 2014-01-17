@@ -36,6 +36,7 @@ clientlibBoostrapper.controller('MainCtrl', function($scope, $http) {
     $scope.data.includeBootstrap = false;
     $scope.data.bootstrapVersion = '';
     $scope.data.bootstrapWrapperClass = '';
+    $scope.data.includeSemanticGrid = false;
 
     $scope.running = false;
     $scope.error = false;
@@ -68,31 +69,6 @@ clientlibBoostrapper.controller('MainCtrl', function($scope, $http) {
                 $scope.errorMessage = "Unknown error";
                 $scope.running = false;
         });
-        
-        
-        //$scope.success = true;
-        //$scope.successMessage = "OK";
-        
-        /*$scope.error = false;
-        $scope.running = true;
-        $http({
-            method: 'POST',
-            url: $('body').data("post-url"),
-            data: $.param({ line : $scope.line }),
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        }).success(function(data, status, headers, config) {
-            if (data.success) {
-                jspCodeDisplay.editor.setValue(data.code);
-                jspCodeDisplay.editor.gotoLine(data.lineNumber, 0, true);
-            } else {
-                $scope.error = true;
-                $scope.errorMessage = data.error;
-            }
-            $scope.running = false;
-        }).error(function(data, status, headers, config) {
-            $scope.error = true;
-            $scope.errorMessage = status;
-        });*/
         
     };
 });

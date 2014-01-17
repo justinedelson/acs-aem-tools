@@ -134,6 +134,10 @@
                     <input type="text" class="field" name="wrapperClass" ng-model="data.bootstrapWrapperClass"/>
                 </section>
                 
+                <section id="semantic-grid-config" class="fieldset framework">
+                    <label><input type="checkbox" name="includeSemanticGrid" ng-model="data.includeSemanticGrid" /><span>Include Semantic Grid?</span></label>
+                </section>
+                
                 <section class="fieldset">
                     <button class="primary" ng-click="createLibrary()">Go</button>
                 </section>

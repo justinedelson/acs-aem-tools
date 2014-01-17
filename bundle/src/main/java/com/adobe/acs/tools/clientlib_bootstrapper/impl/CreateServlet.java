@@ -103,6 +103,7 @@ public class CreateServlet extends SlingAllMethodsServlet {
             boolean overwriteExisting = requestObject.getBoolean("overwriteExisting");
 
             boolean includeBoostrap = requestObject.getBoolean("includeBootstrap");
+            boolean includeSemanticGrid = requestObject.getBoolean("includeSemanticGrid");
 
             ResourceResolver resourceResolver = request.getResourceResolver();
             Resource parent = resourceResolver.getResource(basePath);
@@ -130,6 +131,10 @@ public class CreateServlet extends SlingAllMethodsServlet {
 
             if (includeBoostrap) {
                 addBootstrap(created, requestObject, jsTxt, cssTxt);
+            }
+
+            if (includeSemanticGrid) {
+                addSemanticGrid(created, requestObject, jsTxt, cssTxt);
             }
 
             if (includeJs) {
@@ -168,18 +173,38 @@ public class CreateServlet extends SlingAllMethodsServlet {
 
     }
 
-    private void
-            addBootstrap(Resource created, JSONObject requestObject, StringBuilder jsTxt, StringBuilder cssTxt)
-                    throws JSONException, HttpException, IOException, ServletException, RepositoryException {
+    private void addSemanticGrid(Resource r, JSONObject requestObject, StringBuilder jsTxt, StringBuilder cssTxt)
+            throws HttpException, IOException, RepositoryException {
+        Node createdNode = r.adaptTo(Node.class);
+        Map<String, Node> paths = getAndExtract("https://github.com/twigkit/semantic.gs/zipball/master",
+                createdNode);
+
+        String basePath = paths.keySet().iterator().next();
+
+        StringBuilder customFile = new StringBuilder();
+        customFile.append("//add custom LESS code here which has access to Semantic Grid mixins\n");
+        putFile(createdNode, "semantic-grid-custom.less", "text/css", customFile);
+
+        StringBuilder wrapperFile = new StringBuilder();
+        wrapperFile.append("@import \"").append(basePath + "stylesheets/less/grid.less").append("\";")
+                .append("\n");
+        wrapperFile.append("@import \"").append("semantic-grid-custom.less").append("\";").append("\n");
+
+        putFile(createdNode, "semantic-grid-wrapper.less", "text/css", wrapperFile);
+
+        cssTxt.append("semantic-grid-wrapper.less");
+    }
+
+    private void addBootstrap(Resource r, JSONObject requestObject, StringBuilder jsTxt, StringBuilder cssTxt)
+            throws JSONException, HttpException, IOException, RepositoryException {
         String version = requestObject.getString("bootstrapVersion");
         if (StringUtils.isNotBlank(version)) {
-            GetMethod getMethod = new GetMethod(version);
-            new HttpClient().executeMethod(getMethod);
-            Node createdNode = created.adaptTo(Node.class);
-            Map<String, Node> paths = unzipContents(createdNode, getMethod.getResponseBodyAsStream());
+            Node createdNode = r.adaptTo(Node.class);
+            Map<String, Node> paths = getAndExtract(version, createdNode);
 
             String basePath = paths.keySet().iterator().next();
 
+            // TODO - these should be extracted from the Gruntfile or Makefile
             List<String> jsPaths = getJSPaths(paths.keySet(), basePath);
             for (String jsPath : jsPaths) {
                 jsTxt.append(jsPath).append("\n");
@@ -222,12 +247,18 @@ public class CreateServlet extends SlingAllMethodsServlet {
                 wrapperFile.append("}").append("\n");
             }
 
-            putFile(createdNode, "wrapper.less", "text/css", wrapperFile);
+            putFile(createdNode, "bootstrap-wrapper.less", "text/css", wrapperFile);
 
-            cssTxt.append("wrapper.less");
-
-            log.info("added " + paths);
+            cssTxt.append("bootstrap-wrapper.less");
         }
+    }
+
+    private Map<String, Node> getAndExtract(String url, Node node) throws IOException, HttpException,
+            RepositoryException {
+        GetMethod getMethod = new GetMethod(url);
+        new HttpClient().executeMethod(getMethod);
+        Map<String, Node> paths = unzipContents(node, getMethod.getResponseBodyAsStream());
+        return paths;
     }
 
     private static final Node putFile(Node node, String name, String mimeType, CharSequence content)
@@ -269,7 +300,8 @@ public class CreateServlet extends SlingAllMethodsServlet {
         return values.toArray(new String[0]);
     }
 
-    private Map<String, Node> unzipContents(final Node node, InputStream zip) throws IOException, ServletException {
+    private Map<String, Node> unzipContents(final Node node, InputStream zip) throws IOException,
+            RepositoryException {
         Map<String, Node> result = new LinkedHashMap<String, Node>();
         ZipInputStream zipStream = new ZipInputStream(zip);
         try {
@@ -328,8 +360,6 @@ public class CreateServlet extends SlingAllMethodsServlet {
                 result.put(path, fileNode);
                 entry = zipStream.getNextEntry();
             }
-        } catch (RepositoryException e) {
-            throw new ServletException("Unable to import zip file", e);
         } finally {
             zipStream.close();
         }
